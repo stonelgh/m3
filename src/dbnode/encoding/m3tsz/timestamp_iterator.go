@@ -340,6 +340,7 @@ func (it *TimestampIterator) readAnnotation(stream *encoding.IStream) error {
 	if antLen <= len(it.prevAntBytes) {
 		buf = it.prevAntBytes[:antLen]
 	} else {
+		println("allocating %d byte annotation from TimestampIterator", antLen)
 		buf = make([]byte, antLen)
 	}
 

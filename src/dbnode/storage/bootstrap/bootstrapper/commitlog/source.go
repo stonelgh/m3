@@ -305,7 +305,7 @@ func (s *commitLogSource) Read(
 ) (bootstrap.NamespaceResults, error) {
 	instrCtx := s.instrumentation.commitLogBootstrapperSourceReadStarted(ctx)
 	defer instrCtx.finish()
-
+println("hello")
 	var (
 		// Emit bootstrapping gauge for duration of ReadData.
 		doneReadingData = s.metrics.emitBootstrapping()
@@ -678,6 +678,8 @@ func (s *commitLogSource) readCommitLog(namespaces bootstrap.Namespaces, span op
 			// Use the predefined buffer if the annotation fits in it, otherwise allocate.
 			if len(entry.Annotation) <= len(arg.annotationBytes) {
 				arg.annotation = arg.annotationBytes[:0]
+			} else {
+				println("allocating %d byte annotation from commitLogSource", len(entry.Annotation))
 			}
 			arg.annotation = append(arg.annotation, entry.Annotation...)
 		}
