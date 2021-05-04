@@ -741,11 +741,11 @@ func (s *peersSource) readIndex(
 		BlockSize:       indexBlockSize,
 		// NB(bodu): We only read metadata when performing a peers bootstrap
 		// so we do not need to sort the data fileset reader.
-		ReadMetadataOnly: true,
-		Logger:           s.instrumentation.log,
-		Span:             span,
-		NowFn:            s.instrumentation.nowFn,
-		Cache:            cache,
+		OptimizedReadMetadataOnly: true,
+		Logger:                    s.instrumentation.log,
+		Span:                      span,
+		NowFn:                     s.instrumentation.nowFn,
+		Cache:                     cache,
 	})
 
 	var buildWg sync.WaitGroup
@@ -845,7 +845,6 @@ func (s *peersSource) processReaders(
 		timesWithErrors []time.Time
 		totalEntries    int
 	)
-
 	defer func() {
 		metadataPool.Put(batch)
 		// Return readers to pool.
@@ -1033,12 +1032,15 @@ func (s *peersSource) readNextEntryAndMaybeIndex(
 	builder *result.IndexBuilder,
 ) ([]doc.Metadata, error) {
 	// If performing index run, then simply read the metadata and add to segment.
-	entry, err := r.StreamingReadMetadata()
+	id, tagsIter, _, _, err := r.ReadMetadata()
 	if err != nil {
 		return batch, err
 	}
 
-	d, err := convert.FromSeriesIDAndEncodedTags(entry.ID, entry.EncodedTags)
+	d, err := convert.FromSeriesIDAndTagIter(id, tagsIter)
+	// Finalize the ID and tags.
+	id.Finalize()
+	tagsIter.Close()
 	if err != nil {
 		return batch, err
 	}
