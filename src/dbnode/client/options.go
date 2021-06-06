@@ -53,7 +53,7 @@ import (
 
 const (
 	// DefaultWriteBatchSize is the default write and write tagged batch size.
-	DefaultWriteBatchSize = 128
+	DefaultWriteBatchSize = 8
 
 	// defaultWriteConsistencyLevel is the default write consistency level
 	defaultWriteConsistencyLevel = m3dbruntime.DefaultWriteConsistencyLevel
