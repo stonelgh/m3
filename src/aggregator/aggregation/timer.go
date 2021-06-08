@@ -50,6 +50,11 @@ func NewTimer(quantiles []float64, streamOpts cm.Options, opts Options) Timer {
 
 // Add adds a timer value.
 func (t *Timer) Add(timestamp time.Time, value float64, annotation []byte) {
+	t.AddBatch(timestamp, []float64{value}, annotation)
+}
+
+// AddBatch adds a batch of timer values.
+func (t *Timer) AddBatch(timestamp time.Time, values []float64, annotation []byte) {
 	// Keep the last annotation which was set.
 	if len(annotation) > 0 {
 		if cap(t.annotation) < len(annotation) {
@@ -60,11 +65,7 @@ func (t *Timer) Add(timestamp time.Time, value float64, annotation []byte) {
 		// Reuse any previous allocation while taking a copy.
 		t.annotation = append(t.annotation[:0], annotation...)
 	}
-	t.AddBatch(timestamp, []float64{value})
-}
 
-// AddBatch adds a batch of timer values.
-func (t *Timer) AddBatch(timestamp time.Time, values []float64) {
 	// Record last at just once.
 	t.recordLastAt(timestamp)
 	t.count += int64(len(values))
